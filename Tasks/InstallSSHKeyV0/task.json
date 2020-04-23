@@ -13,8 +13,8 @@
     "author": "Microsoft Corporation",
     "version": {
         "Major": 0,
-        "Minor": 156,
-        "Patch": 1
+        "Minor": 169,
+        "Patch": 0
     },
     "runsOn": [
         "Agent",
@@ -41,7 +41,7 @@
             "label": "SSH Public Key",
             "defaultValue": "",
             "required": false,
-            "helpMarkDown": "The contents of the public SSH key."
+            "helpMarkDown": "The contents of the public SSH key. If not specified it will be generated."
         },
         {
             "name": "sshPassphrase",
@@ -74,7 +74,7 @@
     },
     "messages": {
         "SSHKeyAlreadyInstalled": "The SSH key is already installed.",
-        "SSHPublicKeyMalformed": "Could not get the base64 portion of the public SSH key.",
+        "SSHPublicKeyMalformed": "Could not get the base64 portion of the public SSH key specified.",
         "SSHKeyInstallFailed": "Failed to install the SSH key.",
         "CannotResetKnownHosts": "Cannot reset the known_hosts file to its original values."
     }
