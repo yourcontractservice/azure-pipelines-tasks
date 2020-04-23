@@ -40,7 +40,6 @@ function execSshAddPassphraseSync(tool, args, passphrase):Q.Promise<boolean> {
                 s = s.substring(n + os.EOL.length);
                 n = s.indexOf(os.EOL);
             }
-
             strBuffer = s;                
         }
         catch (err) {
@@ -116,6 +115,11 @@ export class SshToolRunner {
         return executable;
     }
 
+    private generatePublicKey(privateKeyLocation: string) {
+        let keygenResult: trm.IExecSyncResult =  tl.execSync('ssh-keygen', ['-y', '-f', privateKeyLocation]);
+        return keygenResult.stdout;
+    }
+
     public runAgent() {
         // Expected output sample:
         // SSH_AUTH_SOCK=/tmp/ssh-XVblDhTvcbC3/agent.24196; export SSH_AUTH_SOCK;
@@ -155,8 +159,7 @@ export class SshToolRunner {
         }
 
         if (!publicKey || publicKey.length === 0) {
-            let keygenResult: trm.IExecSyncResult =  tl.execSync('ssh-keygen', ['-y', '-f', privateKeyLocation]);
-            publicKey = keygenResult.stdout;
+            publicKey = this.generatePublicKey(privateKeyLocation);
         }
 
         let publicKeyComponents: string[] = publicKey.split(' ');

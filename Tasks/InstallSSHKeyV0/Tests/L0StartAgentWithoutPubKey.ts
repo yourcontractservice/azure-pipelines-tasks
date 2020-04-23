@@ -4,21 +4,21 @@ import { TaskLibAnswers } from 'azure-pipelines-task-lib/mock-answer';
 import { TaskMockRunner } from 'azure-pipelines-task-lib/mock-run';
 
 let taskPath = path.join(__dirname, '..', 'preinstallsshkey.js');
-let tr: TaskMockRunner = new TaskMockRunner(taskPath);
+let taskRunner: TaskMockRunner = new TaskMockRunner(taskPath);
 
 let sshPublicKey: string = '';
-tr.setInput('sshKeySecureFile', 'mySecureFileId');
-tr.setInput('sshPublicKey', sshPublicKey);
-tr.setInput('hostName', 'host name entry');
+taskRunner.setInput('sshKeySecureFile', 'mySecureFileId');
+taskRunner.setInput('sshPublicKey', sshPublicKey);
+taskRunner.setInput('hostName', 'host name entry');
 
 process.env['AGENT_VERSION'] = '2.117.0';
 process.env['AGENT_HOMEDIRECTORY'] = '';
 
-MocksRegistrator.register(tr);
+MocksRegistrator.register(taskRunner);
 
 // provide answers for task mock
-let a: TaskLibAnswers = <TaskLibAnswers>{
-    "which": {
+let answers: TaskLibAnswers = {
+    which: {
         "security": "/usr/bin/security",
         "ssh-agent": "/usr/bin/ssh-agent",
         "ssh-add": "/usr/bin/ssh-add",
@@ -27,7 +27,7 @@ let a: TaskLibAnswers = <TaskLibAnswers>{
         "icacls": "/bin/icacls",
         "ssh-keygen": "/usr/bin/ssh-keygen"
     },
-    "checkPath": {
+    checkPath: {
         "/usr/bin/security": true,
         "/usr/bin/ssh-agent": true,
         "/usr/bin/ssh-add": true,
@@ -36,10 +36,10 @@ let a: TaskLibAnswers = <TaskLibAnswers>{
         "/bin/icacls": true,
         "/usr/bin/ssh-keygen": true,
     },
-    "exist": {
+    exist: {
         "/build/temp/mySecureFileId.filename": true
     },
-    "exec": {
+    exec: {
         "/usr/bin/security cms -D -i /build/temp/mySecureFileId.filename": {
             "code": 0,
             "stdout": "ssh key details here"
@@ -74,7 +74,7 @@ let a: TaskLibAnswers = <TaskLibAnswers>{
         }
     }
 };
-tr.setAnswers(a);
+taskRunner.setAnswers(answers);
 
-tr.run();
+taskRunner.run();
 

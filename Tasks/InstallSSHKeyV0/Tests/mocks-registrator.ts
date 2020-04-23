@@ -2,9 +2,9 @@ import os = require('os');
 import { TaskMockRunner } from 'azure-pipelines-task-lib/mock-run';
 
 export class MocksRegistrator {
-    public static register(tr: TaskMockRunner) {
+    public static register(taskRunner: TaskMockRunner) {
         let secureFileHelperMock = require('./secure-files-mock.js');
-        tr.registerMock('securefiles-common/securefiles-common', secureFileHelperMock);
+        taskRunner.registerMock('securefiles-common/securefiles-common', secureFileHelperMock);
 
         class MockStats {
             mode = 600;
@@ -13,7 +13,7 @@ export class MocksRegistrator {
             username = "testUser";
         };
 
-        tr.registerMock('fs', {
+        taskRunner.registerMock('fs', {
             writeFileSync: function (filePath, contents) {
             },
             existsSync: function (filePath, contents) {
@@ -27,11 +27,10 @@ export class MocksRegistrator {
                 return s;
             },
             chmodSync: function (filePath, string) {
-
             }
         });
 
-        tr.registerMock('os', {
+        taskRunner.registerMock('os', {
             userInfo: function () {
                 let user: MockUser = new MockUser();
                 return user;
@@ -43,6 +42,5 @@ export class MocksRegistrator {
                 return os.homedir();
             }
         });
-
     }
 }
