@@ -1,7 +1,7 @@
 import fs = require('fs');
 import assert = require('assert');
 import path = require('path');
-import * as ttm from 'azure-pipelines-task-lib/mock-test';
+import { MockTestRunner } from 'azure-pipelines-task-lib/mock-test';
 
 describe('InstallSSHKey Suite', function () {
     this.timeout(parseInt(process.env.TASK_TEST_TIMEOUT) || 20000);
@@ -15,7 +15,7 @@ describe('InstallSSHKey Suite', function () {
         this.timeout(1000);
 
         let tp: string = path.join(__dirname, 'L0StartAgent.js');
-        let tr: ttm.MockTestRunner = new ttm.MockTestRunner(tp);
+        let tr: MockTestRunner = new MockTestRunner(tp);
 
         tr.run();
 
@@ -29,7 +29,7 @@ describe('InstallSSHKey Suite', function () {
         this.timeout(1000);
 
         let tp: string = path.join(__dirname, 'L0StartAgentWithoutPubKey.js');
-        let tr: ttm.MockTestRunner = new ttm.MockTestRunner(tp);
+        let tr: MockTestRunner = new MockTestRunner(tp);
 
         tr.run();
 
@@ -43,7 +43,7 @@ describe('InstallSSHKey Suite', function () {
         this.timeout(1000);
 
         let tp: string = path.join(__dirname, 'L0KeyAlreadyInstalled.js');
-        let tr: ttm.MockTestRunner = new ttm.MockTestRunner(tp);
+        let tr: MockTestRunner = new MockTestRunner(tp);
 
         tr.run();
 
@@ -57,7 +57,7 @@ describe('InstallSSHKey Suite', function () {
         this.timeout(1000);
 
         let tp: string = path.join(__dirname, 'L0KeyAlreadyInstalledWithoutPubKey.js');
-        let tr: ttm.MockTestRunner = new ttm.MockTestRunner(tp);
+        let tr: MockTestRunner = new MockTestRunner(tp);
 
         tr.run();
 
@@ -71,7 +71,7 @@ describe('InstallSSHKey Suite', function () {
         this.timeout(1000);
 
         let tp: string = path.join(__dirname, 'L0KeyMalformed.js');
-        let tr: ttm.MockTestRunner = new ttm.MockTestRunner(tp);
+        let tr: MockTestRunner = new MockTestRunner(tp);
 
         tr.run();
 
@@ -85,7 +85,7 @@ describe('InstallSSHKey Suite', function () {
         this.timeout(1000);
 
         const tp: string = path.join(__dirname, 'L0RemoveFromAgent.js');
-        const tr: ttm.MockTestRunner = new ttm.MockTestRunner(tp);
+        const tr: MockTestRunner = new MockTestRunner(tp);
 
         tr.run();
 

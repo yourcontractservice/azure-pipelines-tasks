@@ -1,10 +1,10 @@
-import * as ma from 'azure-pipelines-task-lib/mock-answer';
-import * as tmrm from 'azure-pipelines-task-lib/mock-run';
 import path = require('path');
+import { TaskLibAnswers } from 'azure-pipelines-task-lib/mock-answer';
+import { TaskMockRunner } from 'azure-pipelines-task-lib/mock-run';
 
 const postTaskPath = path.join(__dirname, '..', 'postinstallsshkey.js');
 const sshPublicKey: string = 'ssh-rsa KEYINFORMATIONHERE sample@example.com'
-const postTr: tmrm.TaskMockRunner = new tmrm.TaskMockRunner(postTaskPath);
+const postTr: TaskMockRunner = new TaskMockRunner(postTaskPath);
 
 postTr.setInput('sshKeySecureFile', 'mySecureFileId');
 postTr.setInput('sshPublicKey', sshPublicKey);
@@ -41,7 +41,7 @@ const fsAnswers = {
 postTr.registerMock('fs', fsAnswers);
 
 // provide answers for task mock
-let a: ma.TaskLibAnswers = <ma.TaskLibAnswers>{
+let a: TaskLibAnswers = <TaskLibAnswers>{
     "which": {
         "ssh-agent": "/usr/bin/ssh-agent",
         "ssh-add": "/usr/bin/ssh-add"

@@ -1,10 +1,10 @@
-import * as ma from 'azure-pipelines-task-lib/mock-answer';
-import * as tmrm from 'azure-pipelines-task-lib/mock-run';
 import path = require('path');
-import os = require('os');
+import { MocksRegistrator } from './mocks-registrator';
+import { TaskLibAnswers } from 'azure-pipelines-task-lib/mock-answer';
+import { TaskMockRunner } from 'azure-pipelines-task-lib/mock-run';
 
 let taskPath = path.join(__dirname, '..', 'preinstallsshkey.js');
-let tr: tmrm.TaskMockRunner = new tmrm.TaskMockRunner(taskPath);
+let tr: TaskMockRunner = new TaskMockRunner(taskPath);
 
 let sshPublicKey: string = '';
 let sshPublicKeyGenerated: string = 'ssh-rsa KEYINFORMATIONHERE';
@@ -16,33 +16,10 @@ tr.setInput('hostName', 'host name entry');
 process.env['AGENT_VERSION'] = '2.117.0';
 process.env['AGENT_HOMEDIRECTORY'] = '';
 
-let secureFileHelperMock = require('securefiles-common/securefiles-common-mock');
-tr.registerMock('securefiles-common/securefiles-common', secureFileHelperMock);
-
-tr.registerMock('fs', {
-    writeFileSync: function (filePath, contents) {
-    }
-});
-
-class MockUser {
-    username = "testUser";
-};
-
-tr.registerMock('os' , {
-    userInfo: function() {
-        let user: MockUser = new MockUser();
-        return user;
-    },
-    type: function() {
-        return os.type();
-    },
-    homedir: function() {
-        return os.homedir();
-    }
-});
+MocksRegistrator.register(tr);
 
 // provide answers for task mock
-let a: ma.TaskLibAnswers = <ma.TaskLibAnswers>{
+let a: TaskLibAnswers = <TaskLibAnswers>{
     "which": {
         "security": "/usr/bin/security",
         "ssh-agent": "/usr/bin/ssh-agent",
