@@ -164,7 +164,7 @@ export class SshToolRunner {
             throw tl.loc('SSHPublicKeyMalformed');
         }
 
-        let publicKeyHash: string = publicKeyComponents[1];
+        let publicKeyHash: string = publicKeyComponents[1].trim();
         tl.debug('Checking for public SSH key: ' + publicKeyHash);
         if (results.stdout.indexOf(publicKeyHash) !== -1) {
             throw tl.loc('SSHKeyAlreadyInstalled');
