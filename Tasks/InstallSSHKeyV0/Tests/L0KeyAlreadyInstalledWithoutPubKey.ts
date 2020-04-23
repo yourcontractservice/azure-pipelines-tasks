@@ -6,7 +6,9 @@ import os = require('os');
 let taskPath = path.join(__dirname, '..', 'preinstallsshkey.js');
 let tr: tmrm.TaskMockRunner = new tmrm.TaskMockRunner(taskPath);
 
-let sshPublicKey: string = 'ssh-rsaKEYINFORMATIONHEREsample@example.com'
+let sshPublicKey: string = '';
+let sshPublicKeyGenerated: string = 'ssh-rsa KEYINFORMATIONHERE';
+let sshPublicKeyInstalled: string = 'ssh-rsa KEYINFORMATIONHERE sample@example.com';
 tr.setInput('sshKeySecureFile', 'mySecureFileId');
 tr.setInput('sshPublicKey', sshPublicKey);
 tr.setInput('hostName', 'host name entry');
@@ -14,17 +16,11 @@ tr.setInput('hostName', 'host name entry');
 process.env['AGENT_VERSION'] = '2.117.0';
 process.env['AGENT_HOMEDIRECTORY'] = '';
 
-let secureFileHelperMock = require('./secure-files-mock.js');
+let secureFileHelperMock = require('securefiles-common/securefiles-common-mock');
 tr.registerMock('securefiles-common/securefiles-common', secureFileHelperMock);
 
 tr.registerMock('fs', {
     writeFileSync: function (filePath, contents) {
-    },
-    existsSync: function (filePath, contents) {
-        return true;
-    },
-    readFileSync: function (filePath) {
-        return 'contents';
     }
 });
 
@@ -53,7 +49,8 @@ let a: ma.TaskLibAnswers = <ma.TaskLibAnswers>{
         "ssh-add": "/usr/bin/ssh-add",
         "rm": "/bin/rm",
         "cp": "/bin/cp",
-        "icacls": "/bin/icacls"
+        "icacls": "/bin/icacls",
+        "ssh-keygen": "/usr/bin/ssh-keygen"
     },
     "checkPath": {
         "/usr/bin/security": true,
@@ -62,6 +59,7 @@ let a: ma.TaskLibAnswers = <ma.TaskLibAnswers>{
         "/bin/rm": true,
         "/bin/cp": true,
         "/bin/icacls": true,
+        "/usr/bin/ssh-keygen": true,
     },
     "exist": {
         "/build/temp/mySecureFileId.filename": true
@@ -81,11 +79,7 @@ let a: ma.TaskLibAnswers = <ma.TaskLibAnswers>{
         },
         "/usr/bin/ssh-add -L": {
             "code": 0,
-            "stdout": "No keys"
-        },
-        "/usr/bin/ssh-add /build/temp/mySecureFileId.filename": {
-            "code": 0,
-            "stdout": ""
+            "stdout": sshPublicKeyInstalled
         },
         "/bin/icacls /build/temp/mySecureFileId.filename /inheritance:r" : {
             "code": 0,
@@ -95,6 +89,10 @@ let a: ma.TaskLibAnswers = <ma.TaskLibAnswers>{
             "code": 0,
             "stdout": ""
         },
+        "/usr/bin/ssh-keygen -y -f /build/temp/mySecureFileId.filename" : {
+            "code": 0,
+            "stdout": sshPublicKeyGenerated
+        }
     }
 };
 tr.setAnswers(a);

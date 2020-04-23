@@ -1,6 +1,7 @@
 import * as ma from 'azure-pipelines-task-lib/mock-answer';
 import * as tmrm from 'azure-pipelines-task-lib/mock-run';
 import path = require('path');
+import os = require('os');
 
 let taskPath = path.join(__dirname, '..', 'preinstallsshkey.js');
 let tr: tmrm.TaskMockRunner = new tmrm.TaskMockRunner(taskPath);
@@ -19,6 +20,10 @@ tr.registerMock('securefiles-common/securefiles-common', secureFileHelperMock);
 class MockStats {
     mode = 600;
 };
+class MockUser {
+    username = "testUser";
+};
+
 tr.registerMock('fs', {
     writeFileSync: function (filePath, contents) {
     },
@@ -37,6 +42,19 @@ tr.registerMock('fs', {
     }
 });
 
+tr.registerMock('os' , {
+    userInfo: function() {
+        let user: MockUser = new MockUser();
+        return user;
+    },
+    type: function() {
+        return os.type();
+    },
+    homedir: function() {
+        return os.homedir();
+    }
+});
+
 // provide answers for task mock
 let a: ma.TaskLibAnswers = <ma.TaskLibAnswers>{
     "which": {
@@ -44,14 +62,16 @@ let a: ma.TaskLibAnswers = <ma.TaskLibAnswers>{
         "ssh-agent": "/usr/bin/ssh-agent",
         "ssh-add": "/usr/bin/ssh-add",
         "rm": "/bin/rm",
-        "cp": "/bin/cp"
+        "cp": "/bin/cp",
+        "icacls": "/bin/icacls"
     },
     "checkPath": {
         "/usr/bin/security": true,
         "/usr/bin/ssh-agent": true,
         "/usr/bin/ssh-add": true,
         "/bin/rm": true,
-        "/bin/cp": true
+        "/bin/cp": true,
+        "/bin/icacls": true,
     },
     "exist": {
         "/build/temp/mySecureFileId.filename": true
@@ -74,6 +94,14 @@ let a: ma.TaskLibAnswers = <ma.TaskLibAnswers>{
             "stdout": "No keys"
         },
         "/usr/bin/ssh-add /build/temp/mySecureFileId.filename": {
+            "code": 0,
+            "stdout": ""
+        },
+        "/bin/icacls /build/temp/mySecureFileId.filename /inheritance:r" : {
+            "code": 0,
+            "stdout": ""
+        },
+        "/bin/icacls /build/temp/mySecureFileId.filename /grant:r testUser:(F)" : {
             "code": 0,
             "stdout": ""
         },

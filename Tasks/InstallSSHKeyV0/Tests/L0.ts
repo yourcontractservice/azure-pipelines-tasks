@@ -25,10 +25,38 @@ describe('InstallSSHKey Suite', function () {
         done();
     });
 
+    it('Start ssh-agent (no public key specified)', (done: MochaDone) => {
+        this.timeout(1000);
+
+        let tp: string = path.join(__dirname, 'L0StartAgentWithoutPubKey.js');
+        let tr: ttm.MockTestRunner = new ttm.MockTestRunner(tp);
+
+        tr.run();
+
+        assert(tr.stderr.length === 0, 'should not have written to stderr');
+        assert(tr.succeeded, 'task should have succeeded');
+
+        done();
+    });
+
     it('SSH key already installed', (done: MochaDone) => {
         this.timeout(1000);
 
         let tp: string = path.join(__dirname, 'L0KeyAlreadyInstalled.js');
+        let tr: ttm.MockTestRunner = new ttm.MockTestRunner(tp);
+
+        tr.run();
+
+        assert(tr.failed, 'task should have failed');
+        assert(tr.stdOutContained('loc_mock_SSHKeyAlreadyInstalled'), 'expected error: SSH key already installed');
+
+        done();
+    });
+
+    it('SSH key already installed (no public key specified)', (done: MochaDone) => {
+        this.timeout(1000);
+
+        let tp: string = path.join(__dirname, 'L0KeyAlreadyInstalledWithoutPubKey.js');
         let tr: ttm.MockTestRunner = new ttm.MockTestRunner(tp);
 
         tr.run();

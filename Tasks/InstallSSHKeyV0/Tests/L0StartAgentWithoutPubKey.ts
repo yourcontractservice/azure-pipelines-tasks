@@ -6,7 +6,7 @@ import os = require('os');
 let taskPath = path.join(__dirname, '..', 'preinstallsshkey.js');
 let tr: tmrm.TaskMockRunner = new tmrm.TaskMockRunner(taskPath);
 
-let sshPublicKey: string = 'ssh-rsaKEYINFORMATIONHEREsample@example.com'
+let sshPublicKey: string = '';
 tr.setInput('sshKeySecureFile', 'mySecureFileId');
 tr.setInput('sshPublicKey', sshPublicKey);
 tr.setInput('hostName', 'host name entry');
@@ -17,6 +17,13 @@ process.env['AGENT_HOMEDIRECTORY'] = '';
 let secureFileHelperMock = require('./secure-files-mock.js');
 tr.registerMock('securefiles-common/securefiles-common', secureFileHelperMock);
 
+class MockStats {
+    mode = 600;
+};
+class MockUser {
+    username = "testUser";
+};
+
 tr.registerMock('fs', {
     writeFileSync: function (filePath, contents) {
     },
@@ -25,12 +32,15 @@ tr.registerMock('fs', {
     },
     readFileSync: function (filePath) {
         return 'contents';
+    },
+    statSync: function (filePath) {
+        let s : MockStats = new MockStats();
+        return s;
+    },
+    chmodSync: function (filePath, string) {
+        
     }
 });
-
-class MockUser {
-    username = "testUser";
-};
 
 tr.registerMock('os' , {
     userInfo: function() {
@@ -53,7 +63,8 @@ let a: ma.TaskLibAnswers = <ma.TaskLibAnswers>{
         "ssh-add": "/usr/bin/ssh-add",
         "rm": "/bin/rm",
         "cp": "/bin/cp",
-        "icacls": "/bin/icacls"
+        "icacls": "/bin/icacls",
+        "ssh-keygen": "/usr/bin/ssh-keygen"
     },
     "checkPath": {
         "/usr/bin/security": true,
@@ -62,6 +73,7 @@ let a: ma.TaskLibAnswers = <ma.TaskLibAnswers>{
         "/bin/rm": true,
         "/bin/cp": true,
         "/bin/icacls": true,
+        "/usr/bin/ssh-keygen": true,
     },
     "exist": {
         "/build/temp/mySecureFileId.filename": true
@@ -95,6 +107,10 @@ let a: ma.TaskLibAnswers = <ma.TaskLibAnswers>{
             "code": 0,
             "stdout": ""
         },
+        "/usr/bin/ssh-keygen -y -f /build/temp/mySecureFileId.filename" : {
+            "code": 0,
+            "stdout": "ssh-rsa KEYINFORMATIONHERE sample@example.com"
+        }
     }
 };
 tr.setAnswers(a);
