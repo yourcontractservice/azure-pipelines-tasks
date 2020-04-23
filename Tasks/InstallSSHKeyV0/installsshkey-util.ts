@@ -104,7 +104,7 @@ export class SshToolRunner {
     }
 
     private isWindows(): boolean {
-        return os.type().match(/^Win/) ? true : false;
+        return !!os.type().match(/^Win/);
     }
 
     private getExecutable(executable: string):string {
@@ -172,7 +172,7 @@ export class SshToolRunner {
         if (results.stdout.indexOf(publicKeyHash) !== -1) {
             throw tl.loc('SSHKeyAlreadyInstalled');
         }
-        
+
         tl.debug('Adding the SSH key to the agent ' + privateKeyLocation);
         let oldMode: number = fs.statSync(privateKeyLocation).mode;
         fs.chmodSync(privateKeyLocation, '600'); // requires user only permissions when adding to agent

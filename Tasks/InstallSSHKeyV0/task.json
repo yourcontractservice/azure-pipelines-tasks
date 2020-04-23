@@ -41,7 +41,7 @@
             "label": "SSH Public Key",
             "defaultValue": "",
             "required": false,
-            "helpMarkDown": "The contents of the public SSH key. If not specified it will be generated."
+            "helpMarkDown": "The contents of the public SSH key. If not specified it will be generated out of private key."
         },
         {
             "name": "sshPassphrase",
@@ -74,7 +74,7 @@
     },
     "messages": {
         "SSHKeyAlreadyInstalled": "The SSH key is already installed.",
-        "SSHPublicKeyMalformed": "Could not get the base64 portion of the public SSH key specified.",
+        "SSHPublicKeyMalformed": "Could not get the base64 portion of the public SSH key.",
         "SSHKeyInstallFailed": "Failed to install the SSH key.",
         "CannotResetKnownHosts": "Cannot reset the known_hosts file to its original values."
     }
