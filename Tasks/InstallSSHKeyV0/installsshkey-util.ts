@@ -104,9 +104,12 @@ export class SshToolRunner {
     constructor() {
     }
 
+    private isWindows(): boolean {
+        return os.type().match(/^Win/) ? true : false;
+    }
+
     private getExecutable(executable: string):string {
-        let isWindows: RegExpMatchArray = os.type().match(/^Win/);
-        if (isWindows && this.baseDir) {
+        if (this.isWindows() && this.baseDir) {
             executable = path.join(this.baseDir, path.join(this.sshGitExternalsDir, executable));
             executable += '.exe';
         }
@@ -143,18 +146,28 @@ export class SshToolRunner {
         tl.debug('Get a list of the SSH keys in the agent');
         let results: trm.IExecSyncResult = tl.execSync(this.getExecutable('ssh-add'), '-L');
 
-        if (publicKey && publicKey.length > 0) {
+        if (this.isWindows()) {
+            const userName: string = os.userInfo().username;
+            tl.execSync('icacls', [privateKeyLocation, '/inheritance:r']);
+            tl.execSync('icacls', [privateKeyLocation, '/grant:r', `${userName}:(F)`]);
+        } else {
+            tl.execSync('chmod', ['0600', privateKeyLocation]);
+        }
 
-            let publicKeyComponents: string[] = publicKey.split(' ');
-            if (publicKeyComponents.length <= 1) {
-                throw tl.loc('SSHPublicKeyMalformed');
-            }
+        if (!publicKey || publicKey.length === 0) {
+            let keygenResult: trm.IExecSyncResult =  tl.execSync('ssh-keygen', ['-y', '-f', privateKeyLocation]);
+            publicKey = keygenResult.stdout;
+        }
 
-            let publicKeyHash: string = publicKeyComponents[1];
-            tl.debug('Checking for public SSH key: ' + publicKeyHash);
-            if (results.stdout.indexOf(publicKeyHash) !== -1) {
-                throw tl.loc('SSHKeyAlreadyInstalled');
-            }
+        let publicKeyComponents: string[] = publicKey.split(' ');
+        if (publicKeyComponents.length <= 1) {
+            throw tl.loc('SSHPublicKeyMalformed');
+        }
+
+        let publicKeyHash: string = publicKeyComponents[1];
+        tl.debug('Checking for public SSH key: ' + publicKeyHash);
+        if (results.stdout.indexOf(publicKeyHash) !== -1) {
+            throw tl.loc('SSHKeyAlreadyInstalled');
         }
         
         tl.debug('Adding the SSH key to the agent ' + privateKeyLocation);
