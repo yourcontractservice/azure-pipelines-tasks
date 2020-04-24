@@ -115,6 +115,16 @@ export class SshToolRunner {
         return executable;
     }
 
+    private setPermissions(fileLocation: string) {
+        if (this.isWindows()) {
+            const userName: string = os.userInfo().username;
+            tl.execSync('icacls', [fileLocation, '/inheritance:r']);
+            tl.execSync('icacls', [fileLocation, '/grant:r', `${userName}:(F)`]);
+        } else {
+            tl.execSync('chmod', ['0600', fileLocation]);
+        }
+    }
+
     private generatePublicKey(privateKeyLocation: string) {
         let keygenResult: trm.IExecSyncResult =  tl.execSync('ssh-keygen', ['-y', '-f', privateKeyLocation]);
         return keygenResult.stdout;
@@ -150,13 +160,7 @@ export class SshToolRunner {
         tl.debug('Get a list of the SSH keys in the agent');
         let results: trm.IExecSyncResult = tl.execSync(this.getExecutable('ssh-add'), '-L');
 
-        if (this.isWindows()) {
-            const userName: string = os.userInfo().username;
-            tl.execSync('icacls', [privateKeyLocation, '/inheritance:r']);
-            tl.execSync('icacls', [privateKeyLocation, '/grant:r', `${userName}:(F)`]);
-        } else {
-            tl.execSync('chmod', ['0600', privateKeyLocation]);
-        }
+        this.setPermissions(privateKeyLocation);
 
         if (!publicKey || publicKey.length === 0) {
             publicKey = this.generatePublicKey(privateKeyLocation);
