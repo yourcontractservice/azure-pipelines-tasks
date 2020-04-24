@@ -115,7 +115,7 @@ export class SshToolRunner {
         return executable;
     }
 
-    private setPermissions(fileLocation: string) {
+    private restrictPermissionsToFile(fileLocation: string): void {
         if (this.isWindows()) {
             const userName: string = os.userInfo().username;
             tl.execSync('icacls', [fileLocation, '/inheritance:r']);
@@ -160,7 +160,7 @@ export class SshToolRunner {
         tl.debug('Get a list of the SSH keys in the agent');
         let results: trm.IExecSyncResult = tl.execSync(this.getExecutable('ssh-add'), '-L');
 
-        this.setPermissions(privateKeyLocation);
+        this.restrictPermissionsToFile(privateKeyLocation);
 
         if (!publicKey || publicKey.length === 0) {
             publicKey = this.generatePublicKey(privateKeyLocation);
